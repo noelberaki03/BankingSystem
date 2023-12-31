@@ -1,85 +1,107 @@
-#include "Account.hpp"
 #include "Bank.hpp"
+#include "Account.hpp"
 #include <iostream>
 #include <fstream>
-#include <cstdlib>
-#include <vector>
-#include <map>
 
+// constructor
 Bank::Bank() {
+    ifstream inFile;
+    inFile.open("Bank.txt");
     Account account;
-    std::ifstream infile;
-    infile.open("Bank.data");
-    if (infile.is_open()) {
-        while (infile >> account) {
-            accounts.insert(std::pair<long, Account>(account.getAccNo(), account));
+
+    if (inFile.is_open()) {
+        while (inFile >> account) {
+            accounts[account.getAccountNumber()] = account;
         }
-        Account::setLastAccountNumber(account.getAccNo());
-        infile.close();
     }
+    Account::setLastAccountNumber(account.getAccountNumber());
+    inFile.close();
 }
 
-Account Bank::OpenAccount(std::string fname, std::string lname, float balance) {
-    Account account(fname, lname, balance);
-    accounts.insert(std::pair<long, Account>(account.getAccNo(), account));
+// add account to bank
+Account Bank::openAccount(string fName, string lName, double balance) {
+    Account account(fName, lName, balance);
+    accounts[account.getAccountNumber()] = account;
 
-    std::ofstream outfile;
-    outfile.open("Bank.data", std::ios::trunc);
+    ofstream outFile;
+    outFile.open("Bank.txt", ios::app);
+    outFile << account;
+    outFile.close();
 
-    for (const auto& pair : accounts) {
-        outfile << pair.second;
-    }
-
-    outfile.close();
+    cout << "\nAccount has been opened";
     return account;
 }
 
-Account Bank::BalanceEnquiry(long accountNumber) {
-    auto itr = accounts.find(accountNumber);
-    if (itr != accounts.end()) {
-        return itr->second;
+// returns true if account is in the bank
+bool Bank::hasAccount(int accountNumber) {
+    if (accounts.count(accountNumber) == 0) {
+        cout << "\nError: Bank does not have an account with the account number " << accountNumber << endl << endl;
+        return false;
     }
-    throw std::runtime_error("Account not found");
+    return true;
 }
 
-Account Bank::Deposit(long accountNumber, float amount) {
-    auto itr = accounts.find(accountNumber);
-    if (itr != accounts.end()) {
-        itr->second.Deposit(amount);
-        return itr->second;
-    }
-    throw std::runtime_error("Account not found");
+// view account
+Account Bank::balanceEnquiry(int accountNumber) {
+    return hasAccount(accountNumber) ? accounts.at(accountNumber) : Account();
 }
 
-Account Bank::Withdraw(long accountNumber, float amount) {
-    auto itr = accounts.find(accountNumber);
-    if (itr != accounts.end()) {
-        itr->second.Withdraw(amount);
-        return itr->second;
+// add money to account
+Account Bank::deposit(int accountNumber, double amount) {
+    if (!hasAccount(accountNumber)) {
+        return Account();
     }
-    throw std::runtime_error("Account not found");
+    accounts.at(accountNumber).deposit(amount);
+    cout << "\nSuccessfully deposited " << amount << " to account number " << accountNumber << endl << endl;
+    return accounts.at(accountNumber);
 }
 
-void Bank::CloseAccount(long accountNumber) {
-    auto itr = accounts.find(accountNumber);
-    if (itr != accounts.end()) {
-        accounts.erase(accountNumber);
+// take money out of account
+Account Bank::withdraw(int accountNumber, double amount) {
+    if (!hasAccount(accountNumber)) {
+        return Account();
     }
+    accounts.at(accountNumber).withdraw(amount);
+    cout << "\nSuccessfully withdrew " << amount << " from account number " << accountNumber << endl << endl;
+    return accounts.at(accountNumber);
 }
 
-void Bank::ShowAllAccounts() {
-    for (const auto& pair : accounts) {
-        std::cout << "Account " << pair.first << std::endl << pair.second << std::endl;
+void Bank::closeAccount(int accountNumber) {
+    if (!hasAccount(accountNumber)) { return; }
+    cout << "Account deleted \n" << accounts.at(accountNumber);
+    accounts.erase(accountNumber);
+
+    ofstream outFile("Bank.txt");
+    for (auto account : accounts) {
+        outFile << account.second;
+    }
+    outFile.close();
+}
+
+void Bank::viewAllAcounts() const {
+    cout << "[ " << endl;
+    int count = 0;
+    for (auto account : accounts) {
+        cout << "    Account " << account.first << endl;
+        cout << "------------------" << endl;
+        cout << account.second << endl;
+        count++;
+    }
+    if (count == 0) {
+        cout << "Empty \n]\n" << endl;
+    }
+    else {
+        cout << "]\n" << endl;
     }
 }
 
 Bank::~Bank() {
-    std::ofstream outfile;
-    outfile.open("Bank.data", std::ios::trunc);
+    ofstream outFile;
+    outFile.open("Bank.data");
 
     for (const auto& pair : accounts) {
-        outfile << pair.second;
+        outFile << pair.second;
     }
 
-    outfile.close();
+    outFile.close();
 }

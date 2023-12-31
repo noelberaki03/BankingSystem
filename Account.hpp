@@ -1,29 +1,51 @@
 #include <iostream>
 #include <fstream>
-#include <cstdlib>
-#include <vector>
-#include <map>
+
+using namespace std;
+
+#define MIN_BALANCE 0
+#include <exception>
+
+#ifndef INSUFFICIENTFUNDS_
+#define INSUFFICIENTFUNDS_
+struct InsufficientFunds : exception {};
+#endif
+
+#ifndef ACCOUNT_
+#define ACCOUNT_
 
 class Account {
-private:
-    long accountNumber;
-    std::string firstName;
-    std::string lastName;
-    float balance;
-    static long NextAccountNumber;
+    private:
+        string firstName;
+        string lastName;
+        int accountNumber;
+        double balance;
+        static int nextAccountNumber;
 
-public:
-    Account() {}
-    Account(std::string fname, std::string lname, float balance);
-    long getAccNo() const { return accountNumber; }
-    std::string getFirstName() const { return firstName; }
-    std::string getLastName() const { return lastName; }
-    float getBalance() const { return balance; }
-    void Deposit(float amount);
-    void Withdraw(float amount);
-    static void setLastAccountNumber(long accountNumber);
-    static long getLastAccountNumber();
-    friend std::ofstream& operator<<(std::ofstream& ofs, const Account& acc);
-    friend std::ifstream& operator>>(std::ifstream& ifs, Account& acc);
-    friend std::ostream& operator<<(std::ostream& os, const Account& acc);
+    public:
+        // constructor
+        explicit Account(string fName = "n/a", string lName = "n/a", double balance = 0);
+        
+        // mutator
+        static void setLastAccountNumber(double accountNumber);
+
+        // accessors
+        static double getLastAccountNumber();
+        double getAccountNumber();
+        string getFirstName();
+        string getLastName();
+        double getBalance();
+
+        // operations
+        void deposit(double amount);
+        void withdraw(double amount);
+
+        // operator overload to write Account to screen
+        friend ostream& operator<<(ostream &out, const Account &acc);
+        // operator overload to write Account to file
+        friend ofstream& operator<<(ofstream &ofs, const Account &acc);
+        // operator overload to read Account from file
+        friend ifstream& operator>>(ifstream &ifs, Account &acc);
 };
+
+#endif

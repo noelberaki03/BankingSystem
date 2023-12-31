@@ -1,58 +1,74 @@
 #include "Account.hpp"
-#include "Bank.hpp"
-#include "InsufficientFunds.hpp"
-#include <iostream>
-#include <fstream>
-#include <cstdlib>
-#include <vector>
-#include <map>
 
-Account::Account(std::string fname, std::string lname, float balance) {
-    NextAccountNumber++;
-    accountNumber = NextAccountNumber;
-    firstName = fname;
-    lastName = lname;
-    this->balance = balance;
+int Account::nextAccountNumber = 0;
+
+// constructor
+Account::Account(string fName, string lName, double balance) :
+    firstName(fName), lastName(lName), balance(balance) {
+    accountNumber = ++nextAccountNumber; 
 }
 
-void Account::Deposit(float amount) {
+// mutator
+void Account::setLastAccountNumber(double accountNumber) {
+    nextAccountNumber = accountNumber;
+}
+
+// accessors
+double Account::getLastAccountNumber() {
+    return nextAccountNumber;
+}
+
+double Account::getAccountNumber() {
+    return accountNumber;
+}
+
+string Account::getFirstName() {
+    return firstName;
+}
+
+string Account::getLastName() {
+    return lastName;
+}
+
+double Account::getBalance() {
+    return balance;
+}
+
+// add money to account
+void Account::deposit(double amount) {
     balance += amount;
 }
 
-void Account::Withdraw(float amount) {
-    if (balance - amount < MIN_BALANCE)
+// take out money from account
+void Account::withdraw(double amount) {
+    if (balance - amount < MIN_BALANCE) {
         throw InsufficientFunds();
+    }
     balance -= amount;
 }
 
-void Account::setLastAccountNumber(long accountNumber) {
-    NextAccountNumber = accountNumber;
+// operator overload to write Account to screen
+ostream& operator<<(ostream &out, const Account &acc) {
+    out << "Account Number: " << acc.accountNumber << endl;
+    out << "Name on account: " << acc.firstName << " " << acc.lastName << endl;
+    out << "Balance: " << acc.balance << endl;
+    return out;
 }
 
-long Account::getLastAccountNumber() {
-    return NextAccountNumber;
-}
-
-std::ofstream& operator<<(std::ofstream& ofs, const Account& acc) {
-    ofs << acc.accountNumber << std::endl;
-    ofs << acc.firstName << std::endl;
-    ofs << acc.lastName << std::endl;
-    ofs << acc.balance << std::endl;
+// operator overload to write Account to file
+ofstream& operator<<(ofstream &ofs, const Account &acc) {
+    ofs << acc.accountNumber << endl;
+    ofs << acc.firstName << endl;
+    ofs << acc.lastName << endl;
+    ofs << acc.balance << endl;
     return ofs;
 }
 
-std::ifstream& operator>>(std::ifstream& ifs, Account& acc) {
+// operator overload to read Account from file
+ifstream& operator>>(ifstream &ifs, Account &acc) {
     ifs >> acc.accountNumber;
     ifs >> acc.firstName;
     ifs >> acc.lastName;
     ifs >> acc.balance;
     return ifs;
-}
-
-std::ostream& operator<<(std::ostream& os, const Account& acc) {
-    os << "First Name: " << acc.getFirstName() << std::endl;
-    os << "Last Name: " << acc.getLastName() << std::endl;
-    os << "Account Number: " << acc.getAccNo() << std::endl;
-    os << "Balance: " << acc.getBalance() << std::endl;
-    return os;
 }

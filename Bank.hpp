@@ -1,20 +1,27 @@
-#include <iostream>
-#include <fstream>
-#include <cstdlib>
-#include <vector>
+#include "Account.hpp"
 #include <map>
 
-class Bank {
-private:
-    std::map<long, Account> accounts;
+#ifndef BANK_
+#define BANK_
 
-public:
-    Bank();
-    Account OpenAccount(std::string fname, std::string lname, float balance);
-    Account BalanceEnquiry(long accountNumber);
-    Account Deposit(long accountNumber, float amount);
-    Account Withdraw(long accountNumber, float amount);
-    void CloseAccount(long accountNumber);
-    void ShowAllAccounts();
-    ~Bank();
+class Bank {
+    private:
+        // stores accounts in the bank
+        map<int, Account> accounts;
+    
+    public:
+        // constructor
+        Bank();
+        // destructor
+        ~Bank();
+        // operations on accounts
+        Account openAccount(string fName, string lName, double balance);
+        Account balanceEnquiry(int accountNumber);
+        Account deposit(int accountNumber, double amount);
+        Account withdraw(int accountNumber, double amount);
+        void closeAccount(int accountNumber);
+        void viewAllAcounts() const;
+        bool hasAccount(int accountNumber);
 };
+
+#endif
